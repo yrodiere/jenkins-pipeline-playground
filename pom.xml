@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ ~ Hibernate Search, full-text search for your domain model
+ ~
+ ~ License: GNU Lesser General Public License (LGPL), version 2.1 or later
+ ~ See the lgpl.txt file in the root directory or <http://www.gnu.org/licenses/lgpl-2.1.html>.
+  -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.hibernate.test</groupId>
+    <artifactId>jenkins-test</artifactId>
+    <version>1.0</version>
+    <packaging>pom</packaging>
+
+    <name>jenkins-test</name>
+
+    <properties>
+        <version.docker.maven.plugin>0.34.1</version.docker.maven.plugin>
+        <test.database.run.postgres.image.name>postgres</test.database.run.postgres.image.name>
+        <test.database.run.postgres.image.tag>13.1</test.database.run.postgres.image.tag>
+    </properties>
+
+    <build>
+            <plugins>
+                <plugin>
+                    <groupId>io.fabric8</groupId>
+                    <artifactId>docker-maven-plugin</artifactId>
+                    <version>${version.docker.maven.plugin}</version>
+                    <configuration>
+                        <images>
+                            <image>
+                                <name>${test.database.run.postgres.image.name}:${test.database.run.postgres.image.tag}</name>
+                                <alias>postgres</alias>
+                                <run>
+                                    <skip>${test.database.run.postgres.skip}</skip>
+                                    <env>
+                                        <POSTGRES_USER>hibernate_orm_test</POSTGRES_USER>
+                                        <POSTGRES_PASSWORD>hibernate_orm_test</POSTGRES_PASSWORD>
+                                        <POSTGRES_DB>hibernate_orm_test</POSTGRES_DB>
+                                    </env>
+                                    <ports>
+                                        <port>5432:5432</port>
+                                    </ports>
+                                    <log>
+                                        <prefix>PostgreSQL: </prefix>
+                                        <date>default</date>
+                                        <color>blue</color>
+                                    </log>
+                                    <wait>
+                                        <log>database system is ready to accept connections</log>
+                                    </wait>
+                                </run>
+                            </image>
+                        </images>
+                        <!--Stops all images currently running, not just those we just started.
+                          Useful to stop processes still running from a previously failed integration test run -->
+                        <allContainers>true</allContainers>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>docker-start</id>
+                            <phase>pre-integration-test</phase>
+                            <goals>
+                                <goal>stop</goal>
+                                <goal>start</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>docker-stop</id>
+                            <phase>post-integration-test</phase>
+                            <goals>
+                                <goal>stop</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+    </build>
+</project>
+
