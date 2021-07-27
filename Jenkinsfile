@@ -1,12 +1,8 @@
 stage('test') {
-	node( 'Master||Slave' ) {
+	node( 'Worker&&Containers' ) {
 		checkout scm
-		sh "echo -n 'user.name: '; git config 'user.name' || echo 'None'"
-		sh "echo -n 'user.email: '; git config 'user.email' || echo 'None'"
-		sh "touch foo"
-		sh "git add -A"
-		sh "git commit -m 'foo'"
-		sh "git log"
-		sh "env"
+		sh "docker info"
+		sh "docker login"
+		sh "docker info"
 	}
 }
