@@ -1,5 +1,5 @@
 stage('test') {
-	node( 'Master||Slave' ) {
+	node( 'Worker' ) {
 		checkout scm
 		sh "echo -n 'user.name: '; git config 'user.name' || echo 'None'"
 		sh "echo -n 'user.email: '; git config 'user.email' || echo 'None'"
